@@ -110,7 +110,7 @@ int main() {
     for (int i = 0; i < bytes; ++i) {
         if (isdigit(buf[i])) {
             continue;
-        } else if (isdigit(buf[i + 1]) && (buf[i] != '\n')) {
+        } else if (isdigit(buf[i + 1])) {
             buf[i] = '\0';
             if (tox == 0) {
                 k = k + 1;
@@ -148,45 +148,9 @@ int main() {
                 pr_2[aaaa] = atoi(&buf[i + 1]);
                 ++aaaa;
             }
-        } else if ((isdigit(buf[i + 1]) || isalpha(buf[i+1])) && (buf[i] == '\n')) {
+        }
+        if(buf[i] == '\n' && buf[i+1] != '\n'){
             ++tox;
-            buf[i] = '\0';
-            if (tox == 0) {
-                ++k;
-                powe[k] = atoi(&buf[i + 1]);
-            } else if (tox == 1) {
-
-                quant[q] = atoi(&buf[i + 1]);
-                ++q;
-            } else if (tox == 2) {
-
-                size[qq] = atoi(&buf[i + 1]);
-                ++qq;
-            } else if (tox == 3) {
-
-                price_seller[qqq] = atoi(&buf[i + 1]);
-                ++qqq;
-            } else if (tox == 4) {
-
-                price_producing[qqqq] = atoi(&buf[i + 1]);
-                ++qqqq;
-            } else if (tox == 5) {
-
-                quant_1[a] = atoi(&buf[i + 1]);
-                ++a;
-            } else if (tox == 6) {
-
-                size_1[aa] = atoi(&buf[i + 1]);
-                ++aa;
-            } else if (tox == 7) {
-
-                pr_1[aaa] = atoi(&buf[i + 1]);
-                ++aaa;
-            } else if (tox == 8) {
-
-                pr_2[aaaa] = atoi(&buf[i + 1]);
-                ++aaaa;
-            }
         }
     }
 
@@ -201,7 +165,7 @@ powe[k+1] = '\0';
 
         // printf("%d   ", price_seller[i]);
 
-        printf("%d   ", quant[i]);
+        printf("%d   ", pr_1[i]);
     }
 
     struct Type_Of_Panel *root = 0;
