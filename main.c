@@ -70,11 +70,12 @@ int main() {
         if (buf[j] != ' ') {
             if (buf[j] == '\n') {
                 
-                if (ss != 1) {
+                if (ss > 1) {
                     qn[niqanak] = ss;
                     printf("%d\n", qn[niqanak]);
+                    ++niqanak;
                 }
-                ++niqanak;
+                
                 ss = 0;
             }
             ++ss;
@@ -147,7 +148,7 @@ int main() {
                 pr_2[aaaa] = atoi(&buf[i + 1]);
                 ++aaaa;
             }
-        } else if (isdigit(buf[i + 1]) && (buf[i] == '\n')) {
+        } else if ((isdigit(buf[i + 1]) || isalpha(buf[i+1])) && (buf[i] == '\n')) {
             ++tox;
             buf[i] = '\0';
             if (tox == 0) {
@@ -189,6 +190,8 @@ int main() {
         }
     }
 
+
+powe[k+1] = '\0';
     for (int i = 0; i < aaa; ++i) {
         // printf("%d    ", powe[i]);
 
@@ -198,7 +201,7 @@ int main() {
 
         // printf("%d   ", price_seller[i]);
 
-        printf("%d   ", pr_1[i]);
+        printf("%d   ", quant[i]);
     }
 
     struct Type_Of_Panel *root = 0;
