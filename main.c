@@ -54,47 +54,33 @@ int insert(struct Type_Of_Panel **root, int power, int quantity, float size, int
   return 0;
 }
 
-/**
- * @brief This function counts the bytes in each line of the file.
- * 
- * @param bytes This parameter has initial value 0 which stores the bytes in each line. 
- * @param lines This parameter stores the number of lines of the file apart from the lines which contain only letters, spaces, or symbols.
- * @param buf This parameter has every character of the file in itself.
- * @param buf_bytes This is the number of bytes in our file.
- * @param column This array stores the number of bytes of each line.
- * @return int This parameter returns 0 if the function work without any errors.
- */
-int count_the_line(int bytes, int lines, char * buf, int buf_bytes, int * column){
+int count_of_lines(char * buf, int bytes, int ss, int niqanak, int * qn){
+    for (int j = 0; j < bytes; ++j) {
+    if (buf[j] != ' ') {
+      if (buf[j] == '\n') {
 
-    for (int j = 0; j < buf_bytes; ++j) {
-        if (buf[j] != ' ') {
-            if (buf[j] == '\n') {
-
-                if (bytes > 1) {
-                column[lines] = bytes;
-                printf("%d\n", column[lines]);
-                ++lines;
-                }else{
-                    continue;
-                }
-
-                bytes = 0;
-            }else{
-                continue;
-            }
-        ++bytes;
-        }else{
-            continue;
+        if (ss > 1) {
+          qn[niqanak] = ss;
+          printf("%d\n", qn[niqanak]);
+          ++niqanak;
         }
+
+        ss = 0;
+      }
+      ++ss;
     }
+  }
+
+//     for (int i = 0; i < bytes; ++i) {
+//     printf("%d", qn[i]);
+//   }
     return 0;
 }
-
 
 int main() {
   //Reading data from the file and storing it in a buffer.
   char buf[N];
-  int fd = open("data.txt", O_RDONLY);
+  int fd = open("ordered_data.txt", O_RDONLY);
   if (-1 == fd) {
     perror("Cannot open file");
     return errno;
@@ -109,41 +95,49 @@ int main() {
   buf[bytes] = '\0';
   close(fd);
 
-  int by_tes = 0;
-  int li_nes = 0;
-  int column[10];
-  count_the_line(by_tes, li_nes, buf, bytes, column);
-
-  int powe[column[0]];
-  int quant[column[1]];
-  float size[column[2]];
-  int price_seller[column[3]];
-  int price_producing[column[4]];
+//   for (int i = 0; i < bytes; ++i) {
+//     printf("%c", buf[i]);
+//   }
   
-  int quant_1[column[5]];
-  float size_1[column[6]];
-  int pr_1[column[7]];
-  int pr_2[column[8]];
-    int k = -1;
+  int ss = 0;
+  int niqanak = 0;
+  int qn[10];
+  count_of_lines(buf, bytes, ss, niqanak,qn);
+  
+
+  int powe[qn[0]];
+  int quant[qn[1]];
+  float size[qn[2]];
+  int price_seller[qn[3]];
+  int price_producing[qn[4]];
+  int k = -1;
   int q = 0;
   int qq = 0;
   int qqq = 0;
   int qqqq = 0;
   int tox = 0;
+  int quant_1[qn[5]];
+  float size_1[qn[6]];
+  int pr_1[qn[7]];
+  int pr_2[qn[8]];
+
   int aa = 0;
   int aaa = 0;
   int aaaa = 0;
   int a = 0;
-
+    
   if (isdigit(buf[0])) {
     powe[0] = atoi(&buf[0]);
     k = 0;
   }
   for (int i = 0; i < bytes; ++i) {
+    if (buf[i] == '\n' && buf[i + 1] != '\n') {
+      ++tox;
+    }
     if (isdigit(buf[i])) {
       continue;
-    } else if (isdigit(buf[i + 1])) {
-      buf[i] = '\0';
+    } else if (isdigit(buf[i + 1]) && (buf[i] != '.')) {
+      
       if (tox == 0) {
         k = k + 1;
         powe[k] = atoi(&buf[i + 1]);
@@ -152,8 +146,8 @@ int main() {
         quant[q] = atoi(&buf[i + 1]);
         ++q;
       } else if (tox == 2) {
-
-        size[qq] = atoi(&buf[i + 1]);
+        char*end;
+        size[qq] = strtod(&buf[i + 1], &end);
         ++qq;
       } else if (tox == 3) {
 
@@ -169,7 +163,8 @@ int main() {
         ++a;
       } else if (tox == 6) {
 
-        size_1[aa] = atoi(&buf[i + 1]);
+        char*endd;
+        size_1[aa] = strtod(&buf[i + 1], &endd);
         ++aa;
       } else if (tox == 7) {
 
@@ -181,22 +176,20 @@ int main() {
         ++aaaa;
       }
     }
-    if (buf[i] == '\n' && buf[i + 1] != '\n') {
-      ++tox;
-    }
+    
   }
 
   powe[k + 1] = '\0';
-  powe[q + 1] = '\0';
-  powe[qq + 1] = '\0';
-  powe[qqq + 1] = '\0';
-  powe[qqqq + 1] = '\0';
-  powe[a + 1] = '\0';
-  powe[aa + 1] = '\0';
-  powe[aaa + 1] = '\0';
-  powe[aaaa + 1] = '\0';
+  quant[q + 1] = '\0';
+  size[qq + 1] = '\0';
+  price_seller[qqq + 1] = '\0';
+  price_producing[qqqq + 1] = '\0';
+  quant_1[a + 1] = '\0';
+  size_1[aa + 1] = '\0';
+  pr_1[aaa + 1] = '\0';
+  pr_2[aaaa + 1] = '\0';
   for (int i = 0; i < aaa; ++i) {
-    printf("%d   ", pr_1[i]);
+    printf("%.2f   ", size_1[i]);
   }
 
   struct Type_Of_Panel *root = 0;
