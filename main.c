@@ -18,6 +18,7 @@ struct Type_Of_Panel {
   float size;
   int price_for_selling;
   int price_for_producing;
+  int profit;
   struct Type_Of_Panel *left, *right;
 };
 
@@ -41,13 +42,17 @@ int insert(struct Type_Of_Panel **root, int power, int quantity, float size, int
     (*root)->size = size;
     (*root)->price_for_selling = price_for_selling;
     (*root)->price_for_producing = price_for_producing;
+    (*root)->profit = (*root)->quantity * (price_for_selling - price_for_producing);
     (*root)->left = 0;
     (*root)->right = 0;
   } else if (power < (*root)->power) {
     insert(&((*root)->left), power, quantity, size, price_for_selling, price_for_producing);
   } else if (power > (*root)->power) {
     insert(&((*root)->right), power, quantity, size, price_for_selling, price_for_producing);
-  } else {
+  }else if (power == (*root)->power){
+        (*root)->quantity = (*root)->quantity + quantity; 
+        (*root)->profit = (*root)->quantity * (price_for_selling - price_for_producing);       
+    }else {
     return -1;
   }
 
@@ -141,10 +146,12 @@ int main() {
       if (tox == 0) {
         k = k + 1;
         powe[k] = atoi(&buf[i + 1]);
+       
       } else if (tox == 1) {
 
         quant[q] = atoi(&buf[i + 1]);
         ++q;
+       
       } else if (tox == 2) {
         char*end;
         size[qq] = strtod(&buf[i + 1], &end);
@@ -178,23 +185,29 @@ int main() {
     }
     
   }
+  
+  ++k;
+  powe[k] = '\0';
+  quant[q] = '\0';
+  size[qq] = '\0';
+  price_seller[qqq] = '\0';
+  price_producing[qqqq] = '\0';
+  quant_1[a] = '\0';
+  size_1[aa] = '\0';
+  pr_1[aaa] = '\0';
+  pr_2[aaaa] = '\0';
 
-  powe[k + 1] = '\0';
-  quant[q + 1] = '\0';
-  size[qq + 1] = '\0';
-  price_seller[qqq + 1] = '\0';
-  price_producing[qqqq + 1] = '\0';
-  quant_1[a + 1] = '\0';
-  size_1[aa + 1] = '\0';
-  pr_1[aaa + 1] = '\0';
-  pr_2[aaaa + 1] = '\0';
-  for (int i = 0; i < aaa; ++i) {
-    printf("%.2f   ", size_1[i]);
+  
+
+
+
+// printf("%d  %d  %d  %d  %d  %d  %d  %d  %d", k, q, qq, qqq, qqqq,a,aa,aaa,aaaa);
+  struct Type_Of_Panel *acc_to_power = 0;
+  struct Type_Of_Panel *acc_to_profit = 0;
+  for (int i = 0; i < k; ++i) {
+    insert(&acc_to_power, powe[i],quant[i],size[i],price_seller[i],price_producing[i]);
   }
-
-  struct Type_Of_Panel *root = 0;
-
-  insert(&root, 10, 2, 4, 5, 6);
+  
 
   return 0;
 }
