@@ -82,26 +82,27 @@ int count_of_lines(char * buf, int bytes, int ss, int niqanak, int * qn){
     return 0;
 }
 
-int profitable(struct Type_Of_Panel ** head, int * profitab, int * prof_sec){
+int profitable(struct Type_Of_Panel ** head, int * profitab){
     if (0 != (*head)->left)
     {
-        profitable(&(*head)->left, profitab, prof_sec);
-        if((*head)->profit > *profitab){
-          *profitab = (*head)->profit;
+        profitable(&(*head)->left, profitab);
+        if((*head)->profit > profitab[0]){
+          profitab[1] = profitab[0];
+          profitab[0] = (*head)->profit;
         }
     } 
     if (0 != (*head)->right)
     {
-        if((*head)->profit > *profitab){
-          *profitab = (*head)->profit;
+        profitable(&(*head)->right, profitab);
+        if((*head)->profit > profitab[0]){
+          profitab[1] = profitab[0];
+          profitab[0] = (*head)->profit;
         }
-        profitable(&(*head)->right, profitab, prof_sec);
+        
     } 
 
     return 0;
 }
-
-
 
 int free_bst(struct Type_Of_Panel ** head){
     if (0 != (*head)->left)
@@ -116,11 +117,6 @@ int free_bst(struct Type_Of_Panel ** head){
 
     return 0;    
 }
-
-
-
-
-
 
 
 int main() {
@@ -249,14 +245,12 @@ int main() {
   for (int i = 0; i < k; ++i) {
     insert(&acc_to_power, powe[i],quant[i],size[i],price_seller[i],price_producing[i]);
   }
-int * profitab = 0;
-profitab = (int*)malloc(sizeof(int));
-*profitab = 0;
-int * prof_sec = 0;
-prof_sec = (int*)malloc(sizeof(int));
-*prof_sec = 0;
-profitable(&acc_to_power, profitab, prof_sec);
-printf("%d,,,,,,,%d", *profitab, *prof_sec);
+
+int profitab[1];
+profitab[0] = 0;
+profitab[1] = 0;
+profitable(&acc_to_power, profitab);
+printf("%d,,,,,,,%d", profitab[0], profitab[1]);
 
   return 0;
 }
