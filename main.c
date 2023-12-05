@@ -49,7 +49,7 @@ int insert(struct Type_Of_Panel **root, int power, int quantity, float size, int
     insert(&((*root)->left), power, quantity, size, price_for_selling, price_for_producing);
   } else if (power > (*root)->power) {
     insert(&((*root)->right), power, quantity, size, price_for_selling, price_for_producing);
-  }else if (power == (*root)->power){
+  }else if (power == (*root)->power && size == (*root)->size){
         (*root)->quantity = (*root)->quantity + quantity; 
         (*root)->profit = (*root)->quantity * (price_for_selling - price_for_producing);       
     }else {
@@ -81,6 +81,47 @@ int count_of_lines(char * buf, int bytes, int ss, int niqanak, int * qn){
 //   }
     return 0;
 }
+
+int profitable(struct Type_Of_Panel ** head, int * profitab, int * prof_sec){
+    if (0 != (*head)->left)
+    {
+        profitable(&(*head)->left, profitab, prof_sec);
+        if((*head)->profit > *profitab){
+          *profitab = (*head)->profit;
+        }
+    } 
+    if (0 != (*head)->right)
+    {
+        if((*head)->profit > *profitab){
+          *profitab = (*head)->profit;
+        }
+        profitable(&(*head)->right, profitab, prof_sec);
+    } 
+
+    return 0;
+}
+
+
+
+int free_bst(struct Type_Of_Panel ** head){
+    if (0 != (*head)->left)
+    {
+        free_bst(&(*head)->left);
+    } 
+    if (0 != (*head)->right)
+    {
+        free_bst(&(*head)->right);
+    } 
+    free((*head));
+
+    return 0;    
+}
+
+
+
+
+
+
 
 int main() {
   //Reading data from the file and storing it in a buffer.
@@ -204,10 +245,18 @@ int main() {
 // printf("%d  %d  %d  %d  %d  %d  %d  %d  %d", k, q, qq, qqq, qqqq,a,aa,aaa,aaaa);
   struct Type_Of_Panel *acc_to_power = 0;
   struct Type_Of_Panel *acc_to_profit = 0;
+  int temp = 0;
   for (int i = 0; i < k; ++i) {
     insert(&acc_to_power, powe[i],quant[i],size[i],price_seller[i],price_producing[i]);
   }
-  
+int * profitab = 0;
+profitab = (int*)malloc(sizeof(int));
+*profitab = 0;
+int * prof_sec = 0;
+prof_sec = (int*)malloc(sizeof(int));
+*prof_sec = 0;
+profitable(&acc_to_power, profitab, prof_sec);
+printf("%d,,,,,,,%d", *profitab, *prof_sec);
 
   return 0;
 }
