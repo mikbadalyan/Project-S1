@@ -52,7 +52,7 @@ int insert(struct Type_Of_Panel **root, int power, int quantity, float size, int
   }else if (power == (*root)->power && size == (*root)->size){
         (*root)->quantity = (*root)->quantity + quantity; 
         (*root)->profit = (*root)->quantity * (price_for_selling - price_for_producing);       
-    }else {
+  }else {
     return -1;
   }
 
@@ -62,14 +62,14 @@ int insert(struct Type_Of_Panel **root, int power, int quantity, float size, int
 int count_of_lines(char * buf, int bytes, int ss, int niqanak, int * qn){
     for (int j = 0; j < bytes; ++j) {
     if (buf[j] != ' ') {
-      if (buf[j] == '\n') {
+      if (buf[j] == '\n' || j == bytes - 1) {
 
         if (ss > 1) {
+          
           qn[niqanak] = ss;
           printf("%d\n", qn[niqanak]);
           ++niqanak;
         }
-
         ss = 0;
       }
       ++ss;
@@ -86,23 +86,33 @@ int profitable(struct Type_Of_Panel ** head, int * profitab){
     if (0 != (*head)->left)
     {
         profitable(&(*head)->left, profitab);
-        if((*head)->profit > profitab[0]){
-          profitab[1] = profitab[0];
-          profitab[0] = (*head)->profit;
-        }
     } 
     if (0 != (*head)->right)
     {
         profitable(&(*head)->right, profitab);
-        if((*head)->profit > profitab[0]){
+    } 
+    if((*head)->profit > profitab[0]){
           profitab[1] = profitab[0];
           profitab[0] = (*head)->profit;
-        }
-        
-    } 
+    }
 
     return 0;
 }
+
+int get(struct Type_Of_Panel ** head){
+    if (0 != (*head)->left)
+    {
+        get(&(*head)->left);
+    } 
+    if (0 != (*head)->right)
+    {
+        get(&(*head)->right);
+    } 
+    
+    return 0;    
+}
+
+
 
 int free_bst(struct Type_Of_Panel ** head){
     if (0 != (*head)->left)
@@ -234,23 +244,30 @@ int main() {
   pr_1[aaa] = '\0';
   pr_2[aaaa] = '\0';
 
-  
+
 
 
 
 // printf("%d  %d  %d  %d  %d  %d  %d  %d  %d", k, q, qq, qqq, qqqq,a,aa,aaa,aaaa);
   struct Type_Of_Panel *acc_to_power = 0;
-  struct Type_Of_Panel *acc_to_profit = 0;
+  struct Type_Of_Panel *acc_to_second = 0;
   int temp = 0;
   for (int i = 0; i < k; ++i) {
     insert(&acc_to_power, powe[i],quant[i],size[i],price_seller[i],price_producing[i]);
   }
+  
+  for (int j = 0; j < k; ++j) {
+    insert(&acc_to_second, powe[j],quant_1[j],size_1[j],pr_1[j],pr_2[j]);
+  }
 
-int profitab[1];
+
+int profitab[2];
 profitab[0] = 0;
 profitab[1] = 0;
 profitable(&acc_to_power, profitab);
+profitable(&acc_to_second, profitab);
 printf("%d,,,,,,,%d", profitab[0], profitab[1]);
+
 
   return 0;
 }
