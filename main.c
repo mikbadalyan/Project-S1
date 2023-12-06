@@ -22,6 +22,12 @@ struct Type_Of_Panel {
   struct Type_Of_Panel *left, *right;
 };
 
+struct Result {
+      int power;
+      int quantity;
+      float size;
+};
+
 /**
  * @brief This function inserts values to each node of a binary search tree. We have to give some parameters to the function.
  * 
@@ -98,20 +104,6 @@ int profitable(struct Type_Of_Panel ** head, int * profitab){
 
     return 0;
 }
-
-int get(struct Type_Of_Panel ** head){
-    if (0 != (*head)->left)
-    {
-        get(&(*head)->left);
-    } 
-    if (0 != (*head)->right)
-    {
-        get(&(*head)->right);
-    } 
-    
-    return 0;    
-}
-
 
 
 int free_bst(struct Type_Of_Panel ** head){
@@ -269,5 +261,7 @@ profitable(&acc_to_second, profitab);
 printf("%d,,,,,,,%d", profitab[0], profitab[1]);
 
 
-  return 0;
+
+
+return 0;
 }
