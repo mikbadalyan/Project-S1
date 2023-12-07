@@ -10,6 +10,8 @@
 
 #include <unistd.h>
 
+#include <string.h>
+
 #define N 5000
 // We have mainly 26 types of panels depending on the power and size.
 struct Type_Of_Panel {
@@ -42,7 +44,7 @@ struct Type_Of_Panel {
  * @param price_for_producing This parameter is the prise of the panel which the
  * manufacturing company spend to produce it. (the measure of unit is AMD)
  * @return int if all the parameters are true and the function is working, it
- * returns 0.
+ * returns 0, otherwise -1.
  */
 
 int insert(struct Type_Of_Panel **root, int power, int quantity, float size,
@@ -70,7 +72,7 @@ int insert(struct Type_Of_Panel **root, int power, int quantity, float size,
     } else if (power == (*root)->power && size == (*root)->size) {
         (*root)->quantity = (*root)->quantity + quantity;
         (*root)->profit =
-            (*root)->quantity * (price_for_selling - price_for_producing);
+        (*root)->quantity * (price_for_selling - price_for_producing);
         (*root)->polysilicon = (*root)->power * 8 * (*root)->quantity;
         (*root)->silver = (*root)->power * 0.07 * (*root)->quantity;
         (*root)->aluminum = (*root)->size * 2000 * (*root)->quantity;
@@ -81,88 +83,137 @@ int insert(struct Type_Of_Panel **root, int power, int quantity, float size,
     return 0;
 }
 
-int count_of_lines(char *buf, int bytes, int ss, int niqanak, int *qn) {
+
+/**
+ * @brief This function is for counting the lines of the file and the bytes of each line.
+ * 
+ * @param buf is used for analysing the file content where all data of solar panels are stored.
+ * @param bytes has the value of all bytes in data file.
+ * @param bytes_per_line is the number of all bytes in the current line. It gets 0 value after counting the bytes of that line.
+ * @param niqanak is the number of new lines in a code, if there is at least 2 characters.
+ * @param arr_bytes is an array that stores the quantity of bytes in each line. 
+ * @return int The return value is 0 which indicates that the function has ended.
+ */
+int count_of_lines(char * buf, int bytes, int bytes_per_line, int niqanak, int * arr_bytes) {
     for (int j = 0; j < bytes; ++j) {
         if (buf[j] != ' ') {
             if (buf[j] == '\n' || j == bytes - 1) {
 
-                if (ss > 1) {
+                if (bytes_per_line > 1) {
 
-                    qn[niqanak] = ss;
-                    printf("%d\n", qn[niqanak]);
+                    arr_bytes[niqanak] = bytes_per_line;
+                    printf("%d\n", arr_bytes[niqanak]);
                     ++niqanak;
                 }
-                ss = 0;
+                bytes_per_line = 0;
             }
-            ++ss;
+            ++bytes_per_line;
         }
     }
 
-    //     for (int i = 0; i < bytes; ++i) {
-    //     printf("%d", qn[i]);
-    //   }
+
     return 0;
 }
 
-int profitable(struct Type_Of_Panel **head, int *profitab) {
-    if (0 != (*head)->left) {
-        profitable(&(*head)->left, profitab);
+/**
+ * @brief Using this function and giving the proper parameters we get 2 most profitable solar panels.
+ * 
+ * @param root is the binary search tree which contains the data of solar panels.
+ * @param profitab is the array which has 2 elements. It stores the profits from two most profitable two solar panels.
+ * @return int It returns 0 when when all parameters are given properly and function has ended.
+ */
+int profitable(struct Type_Of_Panel **root, int * profitab) {
+    if (0 != (*root)->left) {
+        profitable(&(*root)->left, profitab);
     }
-    if (0 != (*head)->right) {
-        profitable(&(*head)->right, profitab);
+    if (0 != (*root)->right) {
+        profitable(&(*root)->right, profitab);
     }
-    if ((*head)->profit > profitab[0]) {
+    if ((*root)->profit > profitab[0]) {
         profitab[1] = profitab[0];
-        profitab[0] = (*head)->profit;
+        profitab[0] = (*root)->profit;
     }
 
     return 0;
 }
 
-int get(struct Type_Of_Panel **head, int *profitab, char *tvyal, char *tvyal2,
-        char *tvyal3, char *tv, char *tv2, char *tv3) {
-    if (0 != (*head)->left) {
-        get(&(*head)->left, profitab, tvyal, tvyal2, tvyal3, tv, tv2, tv3);
+
+/**
+ * @brief This function gets some data from the binary search tree
+ * 
+ * @param root is the given binary search tree
+ * @param profitab is the array which has 2 profits.
+ * @param prof_power is the data from the binary search tree for the first element of profitab.
+ * @param prof_quantity is the data from the binary search tree for the first element of profitab.
+ * @param prof_size is the data from the binary search tree for the first element of profitab.
+ * @param prof2_power is the data from the binary search tree for the second element of profitab.
+ * @param prof2_quantity is the data from the binary search tree for the second element of profitab.
+ * @param prof2_size is the data from the binary search tree for the second element of profitab.
+ * @return int The function returns 0 when when all parameters are given properly and function has ended.
+ */
+int get(struct Type_Of_Panel **root, int *profitab, char * prof_power, char * prof_quantity,
+        char * prof_size, char * prof2_power, char *prof2_quantity, char *prof2_size) {
+    if (0 != (*root)->left) {
+        get(&(*root)->left, profitab, prof_power, prof_quantity, prof_size, prof2_power, prof2_quantity, prof2_size);
     }
-    if (0 != (*head)->right) {
-        get(&(*head)->right, profitab, tvyal, tvyal2, tvyal3, tv, tv2, tv3);
+    if (0 != (*root)->right) {
+        get(&(*root)->right, profitab, prof_power, prof_quantity, prof_size, prof2_power, prof2_quantity, prof2_size);
     }
-    if (profitab[0] == (*head)->profit) {
-        sprintf(tvyal, "%d", (*head)->power);
-        sprintf(tvyal3, "%f", (*head)->size);
-        sprintf(tvyal2, "%d", (*head)->quantity);
+    if (profitab[0] == (*root)->profit) {
+        sprintf(prof_power, "%d", (*root)->power);
+        sprintf(prof_size, "%f", (*root)->size);
+        sprintf(prof_quantity, "%d", (*root)->quantity);
     }
-    if (profitab[1] == (*head)->profit) {
-        sprintf(tv, "%d", (*head)->power);
-        sprintf(tv3, "%f", (*head)->size);
-        sprintf(tv2, "%d", (*head)->quantity);
+    if (profitab[1] == (*root)->profit) {
+        sprintf(prof2_power, "%d", (*root)->power);
+        sprintf(prof2_size, "%f", (*root)->size);
+        sprintf(prof2_quantity, "%d", (*root)->quantity);
     }
     return 0;
 }
 
-int check_raw_material(struct Type_Of_Panel **head, long int *polysil,
-                       double *silv, double *alum) {
-    if (0 != (*head)->left) {
-        check_raw_material(&(*head)->left, polysil, silv, alum);
+
+/**
+ * @brief This function counts all raw material which are neccessary to manifacture solar panels. 
+ * 
+ * @param root is the given binary search tree
+ * @param polysilicon stores the data of the quantity of polysillicon in it.
+ * @param silver stores the data of the quantity of silver in it.
+ * @param aluminum stores the data of the quantity of aluminum in it.
+ * @return int The function returns 0 when when all parameters are given properly and function has ended.
+ */
+int check_raw_material(struct Type_Of_Panel **root, long int * polysilicon,
+                       double * silver, double * aluminum) {
+
+    if (0 != (*root)->left) {
+        check_raw_material(&(*root)->left, polysilicon, silver, aluminum);
     }
-    if (0 != (*head)->right) {
-        check_raw_material(&(*head)->right, polysil, silv, alum);
+    if (0 != (*root)->right) {
+        check_raw_material(&(*root)->right, polysilicon, silver, aluminum);
     }
-    *polysil = *polysil + (*head)->polysilicon;
-    *silv = *silv + (*head)->silver;
-    *alum = *alum + (*head)->aluminum;
+
+    *polysilicon = *polysilicon + (*root)->polysilicon;
+    *silver = *silver + (*root)->silver;
+    *aluminum = *aluminum + (*root)->aluminum;
 
     return 0;
 }
 
-int free_bst(struct Type_Of_Panel **head) {
-    if (0 != (*head)->left) {
-        free_bst(&(*head)->left);
+
+/**
+ * @brief This function frees all allocated memory to prevent memory leak.
+ * 
+ * @param root is the given binary search tree.
+ * @return int The function returns 0 when all binary search tree nodes are freed.
+ */
+int free_bst(struct Type_Of_Panel **root) {
+    if (0 != (*root)->left) {
+        free_bst(&(*root)->left);
     }
-    if (0 != (*head)->right) {
-        free_bst(&(*head)->right);
+    if (0 != (*root)->right) {
+        free_bst(&(*root)->right);
     }
-    free((*head));
+    free((*root));
 
     return 0;
 }
@@ -186,83 +237,84 @@ int main() {
     buf[bytes] = '\0';
     close(fd);
 
-    //   for (int i = 0; i < bytes; ++i) {
-    //     printf("%c", buf[i]);
-    //   }
-
-    int ss = 0;
+// This part is for declareing and defining variables.
+    int bytes_per_line = 0;
     int niqanak = 0;
-    int qn[10];
-    count_of_lines(buf, bytes, ss, niqanak, qn);
+    int arr_bytes[10];
+    
+    count_of_lines(buf, bytes, bytes_per_line, niqanak, arr_bytes);
 
-    int powe[qn[0]];
-    int quant[qn[1]];
-    float size[qn[2]];
-    int price_seller[qn[3]];
-    int price_producing[qn[4]];
-    int k = -1;
+    int powe[arr_bytes[0]];
+    int quant[arr_bytes[1]];
+    float size[arr_bytes[2]];
+    int price_seller[arr_bytes[3]];
+    int price_producing[arr_bytes[4]];
+
+    int power_coef = -1;
     int q = 0;
     int qq = 0;
     int qqq = 0;
     int qqqq = 0;
-    int tox = 0;
-    int quant_1[qn[5]];
-    float size_1[qn[6]];
-    int pr_1[qn[7]];
-    int pr_2[qn[8]];
+    int row = 0;
 
+    int quant_1[arr_bytes[5]];
+    float size_1[arr_bytes[6]];
+    int pr_1[arr_bytes[7]];
+    int pr_2[arr_bytes[8]];
+
+    int a = 0;
     int aa = 0;
     int aaa = 0;
     int aaaa = 0;
-    int a = 0;
-
+    
+  //Storing the data of the buffer in separate arrays. Each line of the file is in one array.
     if (isdigit(buf[0])) {
         powe[0] = atoi(&buf[0]);
-        k = 0;
+        power_coef = 0;
     }
     for (int i = 0; i < bytes; ++i) {
         if (buf[i] == '\n' && buf[i + 1] != '\n') {
-            ++tox;
+            ++row;
         }
         if (isdigit(buf[i])) {
             continue;
         } else if (isdigit(buf[i + 1]) && (buf[i] != '.')) {
 
-            if (tox == 0) {
-                k = k + 1;
-                powe[k] = atoi(&buf[i + 1]);
+            if (row == 0) {
+                power_coef = power_coef + 1;
+                powe[power_coef] = atoi(&buf[i + 1]);
 
-            } else if (tox == 1) {
+            } else if (row == 1) {
 
                 quant[q] = atoi(&buf[i + 1]);
                 ++q;
 
-            } else if (tox == 2) {
+            } else if (row == 2) {
                 char *end;
                 size[qq] = strtod(&buf[i + 1], &end);
                 ++qq;
-            } else if (tox == 3) {
+            } else if (row == 3) {
 
                 price_seller[qqq] = atoi(&buf[i + 1]);
                 ++qqq;
-            } else if (tox == 4) {
+            } else if (row == 4) {
 
                 price_producing[qqqq] = atoi(&buf[i + 1]);
                 ++qqqq;
-            } else if (tox == 5) {
+            } else if (row == 5) {
 
                 quant_1[a] = atoi(&buf[i + 1]);
                 ++a;
-            } else if (tox == 6) {
+            } else if (row == 6) {
 
                 char *endd;
                 size_1[aa] = strtod(&buf[i + 1], &endd);
                 ++aa;
-            } else if (tox == 7) {
+            } else if (row == 7) {
 
                 pr_1[aaa] = atoi(&buf[i + 1]);
                 ++aaa;
-            } else if (tox == 8) {
+            } else if (row == 8) {
 
                 pr_2[aaaa] = atoi(&buf[i + 1]);
                 ++aaaa;
@@ -270,8 +322,8 @@ int main() {
         }
     }
 
-    ++k;
-    powe[k] = '\0';
+    ++power_coef;
+    powe[power_coef] = '\0';
     quant[q] = '\0';
     size[qq] = '\0';
     price_seller[qqq] = '\0';
@@ -281,21 +333,19 @@ int main() {
     pr_1[aaa] = '\0';
     pr_2[aaaa] = '\0';
 
-    // printf("%d  %d  %d  %d  %d  %d  %d  %d  %d", k, q, qq, qqq,
-    // qqqq,a,aa,aaa,aaaa);
     struct Type_Of_Panel *acc_to_power = 0;
     struct Type_Of_Panel *acc_to_second = 0;
-    int temp = 0;
-    for (int i = 0; i < k; ++i) {
+//Inserting data into the binary search trees.
+    for (int i = 0; i < power_coef; ++i) {
         insert(&acc_to_power, powe[i], quant[i], size[i], price_seller[i],
                price_producing[i]);
     }
 
-    for (int j = 0; j < k; ++j) {
+    for (int j = 0; j < power_coef; ++j) {
         insert(&acc_to_second, powe[j], quant_1[j], size_1[j], pr_1[j],
                pr_2[j]);
     }
-
+//Getting 2 most profitable order requests.
     int profitab[2];
     profitab[0] = 0;
     profitab[1] = 0;
@@ -303,48 +353,50 @@ int main() {
     profitable(&acc_to_second, profitab);
     printf("%d,,,,,,,%d", profitab[0], profitab[1]);
 
-    long int poll;
-    double silll;
-    double aluu;
-    check_raw_material(&acc_to_power, &poll, &silll, &aluu);
-    check_raw_material(&acc_to_second, &poll, &silll, &aluu);
+//Storing all raw material data in variables.
+    long int total_polysillicon;
+    double total_silver;
+    double total_aluminum;
+
+    check_raw_material(&acc_to_power, &total_polysillicon, &total_silver, &total_aluminum);
+    check_raw_material(&acc_to_second, &total_polysillicon, &total_silver, &total_aluminum);
 
     long int warehouse_polysilicon = 242000000;
     double warehouse_silver = 1800500;
     double warehouse_aluminum = 131000000;
 
-    char tvyal[4];
-    char tvyal2[5];
-    char tvyal3[7];
-    char tv[4];
-    char tv2[5];
-    char tv3[7];
-    get(&acc_to_power, profitab, tvyal, tvyal2, tvyal3, tv, tv2, tv3);
-    get(&acc_to_second, profitab, tvyal, tvyal2, tvyal3, tv, tv2, tv3);
-    int filedescriptor = open("result.txt", O_WRONLY);
+    char prof_power[4];
+    char prof_quantity[5];
+    char prof_size[7];
+    char prof2_power[4];
+    char prof2_quantity[5];
+    char prof2_size[7];
+    get(&acc_to_power, profitab, prof_power, prof_quantity, prof_size, prof2_power, prof2_quantity, prof2_size);
+    get(&acc_to_second, profitab, prof_power, prof_quantity, prof_size, prof2_power, prof2_quantity, prof2_size);
+    int filedescriptor = open("result.txt", O_WRONLY | O_APPEND);
     if (-1 == filedescriptor) {
         perror("Cannot open file");
         return errno;
     }
-    // This function reads the file (only N bytes), stores it in a buffer.
-    write(filedescriptor, "Solar Panel 1 \n", 15);
-    ssize_t text_bytes = write(filedescriptor, tvyal, 4);
+    // This part writes the data in a file.
+    write(filedescriptor, "\nSolar Panel 1 \n", 17);
+    ssize_t text_bytes = write(filedescriptor, prof_power, 4);
     write(filedescriptor, "\n", 1);
-    ssize_t tex_bytes = write(filedescriptor, tvyal2, 5);
+    ssize_t tex_bytes = write(filedescriptor, prof_quantity, 5);
     write(filedescriptor, "\n", 1);
-    ssize_t tet_bytes = write(filedescriptor, tvyal3, 7);
+    ssize_t tet_bytes = write(filedescriptor, prof_size, 7);
     write(filedescriptor, "\n\n\nSolar Panel 2 \n", 18);
-    ssize_t t_bytes = write(filedescriptor, tv, 4);
+    ssize_t t_bytes = write(filedescriptor, prof2_power, 4);
     write(filedescriptor, "\n", 1);
-    ssize_t tess_bytes = write(filedescriptor, tv2, 5);
+    ssize_t tess_bytes = write(filedescriptor, prof2_quantity, 5);
     write(filedescriptor, "\n", 1);
-    ssize_t tetss_bytes = write(filedescriptor, tv3, 7);
+    ssize_t tetss_bytes = write(filedescriptor, prof2_size, 7);
     if (-1 == bytes) {
         perror("Cannot read file");
         return errno;
     }
-
-    if (warehouse_polysilicon >= poll) {
+    // Checking the availability of these raw materials.
+    if (warehouse_polysilicon >= total_polysillicon) {
         write(filedescriptor,
               "\n\n\n The polysillicon quantity in the warehouse is sufficient "
               "for tomorrows production line.",
@@ -355,7 +407,7 @@ int main() {
               "sufficient for tomorrow's production line.",
               95);
     }
-    if (warehouse_silver >= silll) {
+    if (warehouse_silver >= total_silver) {
         write(filedescriptor,
               "\n\n\n The silver quantity in the warehouse is sufficient for "
               "tomorrow's production line.",
@@ -366,7 +418,7 @@ int main() {
               "for tomorrow's production line.",
               90);
     }
-    if (warehouse_aluminum >= aluu) {
+    if (warehouse_aluminum >= total_aluminum) {
         write(filedescriptor,
               "\n\n\n The aluminum quantity in the warehouse is sufficient for "
               "tomorrow's production line.",
