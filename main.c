@@ -105,6 +105,28 @@ int profitable(struct Type_Of_Panel ** head, int * profitab){
     return 0;
 }
 
+int get(struct Type_Of_Panel ** head, int * profitab, char * tvyal, char * tvyal2, char * tvyal3, char * tv, char * tv2, char*tv3){
+    if (0 != (*head)->left)
+    {
+        get(&(*head)->left, profitab, tvyal, tvyal2, tvyal3, tv, tv2, tv3);
+    } 
+    if (0 != (*head)->right)
+    {
+        get(&(*head)->right, profitab, tvyal, tvyal2, tvyal3, tv, tv2, tv3);
+    } 
+    if(profitab[0] == (*head)->profit){
+      sprintf(tvyal, "%d", (*head)->power);
+      sprintf(tvyal3, "%f", (*head)->size);
+      sprintf(tvyal2, "%d", (*head)->quantity);
+    }if(profitab[1] == (*head)->profit){
+      sprintf(tv, "%d", (*head)->power);
+      sprintf(tv3, "%f", (*head)->size);
+      sprintf(tv2, "%d", (*head)->quantity);
+    }
+    return 0;    
+}
+
+
 
 int free_bst(struct Type_Of_Panel ** head){
     if (0 != (*head)->left)
@@ -260,8 +282,39 @@ profitable(&acc_to_power, profitab);
 profitable(&acc_to_second, profitab);
 printf("%d,,,,,,,%d", profitab[0], profitab[1]);
 
+char tvyal[4];
+char tvyal2[5];
+char tvyal3[7];
+char tv[4];
+char tv2[5];
+char tv3[7];
+get(&acc_to_power, profitab, tvyal, tvyal2, tvyal3, tv, tv2, tv3);
+get(&acc_to_second, profitab, tvyal, tvyal2, tvyal3, tv, tv2, tv3);
+  int filedescriptor = open("result.txt", O_WRONLY);
+  if (-1 == filedescriptor) {
+    perror("Cannot open file");
+    return errno;
+  }
+  // This function reads the file (only N bytes), stores it in a buffer.
+  write(filedescriptor, "Solar Panel 1 \n", 15);
+  ssize_t text_bytes = write(filedescriptor, tvyal, 4);
+  write(filedescriptor, "\n", 1);
+  ssize_t tex_bytes = write(filedescriptor, tvyal2, 5);
+  write(filedescriptor, "\n", 1);
+  ssize_t tet_bytes = write(filedescriptor, tvyal3, 7);
+  write(filedescriptor, "\n\n\nSolar Panel 2 \n", 18);
+  ssize_t t_bytes = write(filedescriptor, tv, 4);
+  write(filedescriptor, "\n", 1);
+  ssize_t tess_bytes = write(filedescriptor, tv2, 5);
+  write(filedescriptor, "\n", 1);
+  ssize_t tetss_bytes = write(filedescriptor, tv3, 7);
+  if (-1 == bytes) {
+    perror("Cannot read file");
+    return errno;
+  }
+  //We have to write '\0' so as not to get some random values which could affect our code. 
 
-
+  close(fd);
 
 return 0;
 }
