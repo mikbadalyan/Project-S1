@@ -139,6 +139,28 @@ int profitable(struct Type_Of_Panel **root, int * profitab) {
 
 
 /**
+ * @brief Using this function and giving the proper parameters we get 2 most profitable solar panels.
+ * 
+ * @param root is the binary search tree which contains the data of solar panels.
+ * @param most_quantity is an array which has 2 elements. It stores the quantities from two solar panels which have more demand.
+ * @return int It returns 0 when when all parameters are given properly and function has ended.
+ */
+int most(struct Type_Of_Panel **root, int * most_quantity) {
+    if (0 != (*root)->left) {
+        most(&(*root)->left, most_quantity);
+    }
+    if (0 != (*root)->right) {
+        most(&(*root)->right, most_quantity);
+    }
+    if ((*root)->quantity > most_quantity[0]) {
+        most_quantity[1] = most_quantity[0];
+        most_quantity[0] = (*root)->quantity;
+    }
+
+    return 0;
+}
+
+/**
  * @brief This function gets some data from the binary search tree
  * 
  * @param root is the given binary search tree
@@ -165,6 +187,40 @@ int get(struct Type_Of_Panel **root, int *profitab, char * prof_power, char * pr
         sprintf(prof_quantity, "%d", (*root)->quantity);
     }
     if (profitab[1] == (*root)->profit) {
+        sprintf(prof2_power, "%d", (*root)->power);
+        sprintf(prof2_size, "%f", (*root)->size);
+        sprintf(prof2_quantity, "%d", (*root)->quantity);
+    }
+    return 0;
+}
+
+/**
+ * @brief This function gets some data from the binary search tree
+ * 
+ * @param root is the given binary search tree
+ * @param most_quantity is the array which has 2 values of solar panel quantities.
+ * @param prof_power is the data from the binary search tree for the first element of most_quantity.
+ * @param prof_quantity is the data from the binary search tree for the first element of most_quantity.
+ * @param prof_size is the data from the binary search tree for the first element of most_quantity.
+ * @param prof2_power is the data from the binary search tree for the second element of most_quantity.
+ * @param prof2_quantity is the data from the binary search tree for the second element of most_quantity.
+ * @param prof2_size is the data from the binary search tree for the second element of most_quantity.
+ * @return int The function returns 0 when when all parameters are given properly and function has ended.
+ */
+int get_quantity(struct Type_Of_Panel **root, int *most_quantity, char * prof_power, char * prof_quantity,
+        char * prof_size, char * prof2_power, char *prof2_quantity, char *prof2_size) {
+    if (0 != (*root)->left) {
+        get_quantity(&(*root)->left, most_quantity, prof_power, prof_quantity, prof_size, prof2_power, prof2_quantity, prof2_size);
+    }
+    if (0 != (*root)->right) {
+        get_quantity(&(*root)->right, most_quantity, prof_power, prof_quantity, prof_size, prof2_power, prof2_quantity, prof2_size);
+    }
+    if (most_quantity[0] == (*root)->quantity) {
+        sprintf(prof_power, "%d", (*root)->power);
+        sprintf(prof_size, "%f", (*root)->size);
+        sprintf(prof_quantity, "%d", (*root)->quantity);
+    }
+    if (most_quantity[1] == (*root)->quantity) {
         sprintf(prof2_power, "%d", (*root)->power);
         sprintf(prof2_size, "%f", (*root)->size);
         sprintf(prof2_quantity, "%d", (*root)->quantity);
@@ -345,6 +401,7 @@ int main() {
         insert(&acc_to_second, powe[j], quant_1[j], size_1[j], pr_1[j],
                pr_2[j]);
     }
+
 //Getting 2 most profitable order requests.
     int profitab[2];
     profitab[0] = 0;
@@ -353,6 +410,15 @@ int main() {
     profitable(&acc_to_second, profitab);
     printf("%d,,,,,,,%d", profitab[0], profitab[1]);
 
+//Getting 2 solar panels quantities which have more demand.
+    int most_quantity[4];
+    most_quantity[0] = 0;
+    most_quantity[1] = 0;
+    most(&acc_to_power, most_quantity);
+    most(&acc_to_second, most_quantity);
+
+    printf("\n %d", most_quantity[0]);
+    printf("\n %d", most_quantity[1]);
 //Storing all raw material data in variables.
     long int total_polysillicon;
     double total_silver;
@@ -378,7 +444,11 @@ int main() {
         perror("Cannot open file");
         return errno;
     }
+
     // This part writes the data in a file.
+    
+    write(filedescriptor, "\n ------------------------------------------------ \n", 53);
+    write(filedescriptor, "\n Production Line 2 \n", 20);
     write(filedescriptor, "\nSolar Panel 1 \n", 17);
     ssize_t text_bytes = write(filedescriptor, prof_power, 4);
     write(filedescriptor, "\n", 1);
@@ -395,6 +465,7 @@ int main() {
         perror("Cannot read file");
         return errno;
     }
+
     // Checking the availability of these raw materials.
     if (warehouse_polysilicon >= total_polysillicon) {
         write(filedescriptor,
@@ -429,8 +500,36 @@ int main() {
               "for tomorrow's production line.",
               92);
     }
+    
+    
+    //Writing 2 solar panel data in a file which are in high demand.
+    get_quantity(&acc_to_power, most_quantity, prof_power, prof_quantity, prof_size, prof2_power, prof2_quantity, prof2_size);
+    get_quantity(&acc_to_second, most_quantity, prof_power, prof_quantity, prof_size, prof2_power, prof2_quantity, prof2_size);
+    
+    
+    write(filedescriptor, "\n ------------------------------------------------ \n", 53);
+    write(filedescriptor, "\n Production Line 3 \n", 20);
+    write(filedescriptor, "\nSolar Panel 1 \n", 17);
+    ssize_t text3_bytes = write(filedescriptor, prof_power, 4);
+    write(filedescriptor, "\n", 1);
+    ssize_t tex3_bytes = write(filedescriptor, prof_quantity, 5);
+    write(filedescriptor, "\n", 1);
+    ssize_t tet3_bytes = write(filedescriptor, prof_size, 7);
+    write(filedescriptor, "\n\n\nSolar Panel 2 \n", 18);
+    ssize_t t3_bytes = write(filedescriptor, prof2_power, 4);
+    write(filedescriptor, "\n", 1);
+    ssize_t tess3_bytes = write(filedescriptor, prof2_quantity, 5);
+    write(filedescriptor, "\n", 1);
+    ssize_t tetss3_bytes = write(filedescriptor, prof2_size, 7);    
+    
+    
+    
+
+
 
     close(fd);
 
+    free_bst(&acc_to_power);
+    free_bst(&acc_to_second);
     return 0;
 }
